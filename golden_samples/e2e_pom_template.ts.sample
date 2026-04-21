@@ -1,0 +1,39 @@
+import { test, expect, Page } from '@playwright/test';
+
+// Base Page pre zdieľanú logiku
+export class BasePage {
+  readonly page: Page;
+  constructor(page: Page) { this.page = page; }
+}
+
+// POM pre konkrétnu stránku s camelCase gettrami a .first() poistkou
+export class AppFlowPage extends BasePage {
+  get loginInput() { return this.page.getByPlaceholder(/email|username/i).first(); }
+  get passwordInput() { return this.page.getByPlaceholder(/password/i).first(); }
+  get submitButton() { return this.page.getByRole('button', { name: /login|sign in|submit/i }).first(); }
+  get successNotification() { return this.page.getByRole('alert').first(); }
+
+  // Komplexná biznis akcia
+  async loginToSystem(user: string, pass: string) {
+    await this.loginInput.fill(user);
+    await this.passwordInput.fill(pass);
+    await this.submitButton.click();
+  }
+}
+
+test.describe('E2E Business Flow', () => {
+  let appPage: AppFlowPage;
+
+  test.beforeEach(async ({ page }) => {
+    appPage = new AppFlowPage(page);
+    await page.goto('URL_PLACEHOLDER');
+  });
+
+  test('should execute the requested business scenario successfully', async () => {
+    // 1. Akcia (napríklad login)
+    await appPage.loginToSystem('test@example.com', 'SecurePass123!');
+    
+    // 2. Čakanie na asynchrónny stav / Validácia (napr. notifikácia)
+    await expect(appPage.successNotification).toBeVisible({ timeout: 10000 });
+  });
+});

@@ -1,0 +1,22 @@
+# Secrets (DÔLEŽITÉ!)
+.env
+.env.example
+
+# Python
+venv/
+__pycache__/
+*.py[cod]
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Generated tests (keďže ich budeme generovať na serveri)
+*-generated.spec.ts
+*-data-driven.spec.ts

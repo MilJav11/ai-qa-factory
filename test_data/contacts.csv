@@ -1,0 +1,11 @@
+name,email,phone,subject,message
+Ján Novák,jan.novak@gmail.com,+421901234567,Kúpa auta,Dobrý deň mám záujem o vašu ponuku.
+Veronika Šťastná,veronika.stastna@icloud.com,+421913456789,Test diakritiky,Správa obsahuje diakritiku: áéíóúýčďžšľňťŕ
+ONDREJ KAPITÁN,ONDREJ.KAPITAN@GMAIL.COM,+421914567890,CAPS LOCK TEST,CELÉ MENO AJ EMAIL VEĽKÝMI PÍSMENAMI.
+Alexandrina Konstantinopoulos,alexandrina.k@dlhadomena.com,+421915678901,Dlhý text,Meno na hrane maximálnej dĺžky poľa.
+Igor Hromada,igor.hromada@work.eu,+421906123456,Cenová ponuka,"Správa obsahuje čísla: objednávka 12345, cena 99.99 EUR."
+Eva Kušnírová,eva.kusnir@gmail.com,+421909456789,Špeciálne znaky,"Správa so špeciálnymi znakmi: & < > # @"
+Simona Polák,simona.polak@centrum.cz,+421923345678,Emoji test,Správa obsahuje emoji: 😊👍 Funguje to?
+Jakub Vanko,jakub.vanko@gmail.com,+421940012345,XSS Attack Test,"Správa s HTML tagom: <b>tučné</b> - XSS test."
+Silvia Opálková,silvia.opalkova@email.sk,+421941123456,SQL Injection,"Správa s SQL: SELECT * FROM users; -- injection test."
+,prazdne.meno@gmail.com,+421943345678,Prázdne meno,Prázdne meno - validácia required poľa.

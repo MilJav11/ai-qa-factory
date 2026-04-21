@@ -1,0 +1,33 @@
+import { test, expect, Page } from '@playwright/test';
+
+export class BasePage {
+  readonly page: Page;
+  constructor(page: Page) { this.page = page; }
+}
+
+export class ExamplePage extends BasePage {
+  get loginButton() { return this.page.getByRole('button', { name: 'Log in' }).first(); }
+  get searchInput() { return this.page.getByPlaceholder(/search/i).first(); }
+  get hiddenSkipLink() { return this.page.getByRole('link', { name: 'Skip' }).first(); }
+  // Pre skryté WP checkboxy (WPCF7) používaj .first() a .click() na label/span
+  get privacyPolicyCheckbox() { return this.page.locator('span.wpcf7-list-item-label', { hasText: /I agree/i }).first(); }
+
+  async performSearch(term: string) {
+    await this.searchInput.fill(term);
+    await this.searchInput.press('Enter');
+  }
+}
+
+test.describe('Example Page Tests', () => {
+  let examplePage: ExamplePage;
+  test.beforeEach(async ({ page }) => {
+    examplePage = new ExamplePage(page);
+    await page.goto('https://example.com');
+  });
+
+  test('should verify basic UI elements are attached or visible', async () => {
+    await expect(examplePage.loginButton).toBeVisible();
+    await expect(examplePage.hiddenSkipLink).toBeAttached(); // Used for visually hidden a11y links
+    await examplePage.privacyPolicyCheckbox.click();
+  });
+});
