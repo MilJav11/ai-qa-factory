@@ -13,9 +13,16 @@ if "analysis_result" not in st.session_state:
 
 # Automatic loading of error log
 default_error = ""
+default_file_path = "tests/guardian_test.spec.ts" # Fallback value
+
 if os.path.exists("error_log.txt"):
     with open("error_log.txt", "r", encoding="utf-8") as f:
         default_error = f.read()
+    
+    # Search for a string that starts with "tests" and ends with ".spec.ts"
+    match = re.search(r'(tests[\\/][\w.-]+\.spec\.ts)', default_error)
+    if match:
+        default_file_path = match.group(1).replace('\\', '/') # Normalize slashes for Python
 
 st.subheader("Input")
 stderr_input = st.text_area("Playwright error log:", value=default_error, height=150)
@@ -65,7 +72,7 @@ if st.session_state.analysis_result:
         st.markdown("### 🛠️ Apply Fix")
         original_selector = res.get("original_selector", ".btn-submit")
         
-        target_file = st.text_input("Path to broken test:", value="tests/guardian_test.spec.ts")
+        target_file = st.text_input("Path to broken test:", value=default_file_path)
         
         # BUTTON 2: WRITE TO FILE
         if st.button("💾 Overwrite code in file"):
