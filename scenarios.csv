@@ -1,2 +1,2 @@
 url,scenario
-https://romotors.ie,"Nájdi tlačidlo Contact Us, vyplň formulár z contacts.csv a over, či sa dá odoslať (nezabudni na Network Mocking!)."
+https://email.seznam.cz,"Prihlás sa. POZOR: Login je dvojkrokový. Najprv zadaj process.env.SEZNAM_EMAIL a NIKDY nehľadaj tlačidlo Pokračovat! Namiesto toho stlač ENTER. Počkaj na dynamické zobrazenie poľa pre heslo - TU NIKDY NEHĽADAJ PODĽA TEXTU ALEBO PLACEHOLDRA! Striktne použi `page.locator('input[type=\"password\"]')`, vlož doň process.env.SEZNAM_PASSWORD a opäť stlač ENTER. Vytvor nový mail na dentalux11@gmail.com, Predmet: 'Ostrý AI Test', Telo: 'Reálny test'. Nájdi skrytý `<input type=\"file\">` a aplikuj `setInputFiles('test_data/priloha.txt')`. REÁLNE ODOŠLI MAIL a počkaj na zelenú hlášku."

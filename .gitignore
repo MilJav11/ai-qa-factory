@@ -1,15 +1,18 @@
-# Secrets (DÔLEŽITÉ!)
+# Secrets & Environment Variables (CRITICAL!)
 .env
-.env.example
+
+# AI Guardian Temporary Files (Do not track dynamic logs)
+dom_dump.txt
+error_log.txt
 
 # Python
 venv/
 __pycache__/
 *.py[cod]
+.streamlit/
 
 # Node.js
 node_modules/
-package-lock.json
 
 # Playwright
 test-results/
@@ -17,6 +20,10 @@ playwright-report/
 blob-report/
 playwright/.cache/
 
-# Generated tests (keďže ich budeme generovať na serveri)
+# Generated tests (generated dynamically on the server)
 *-generated.spec.ts
 *-data-driven.spec.ts
+
+# Personal notes and old prototypes (Local only)
+_archive_old_prototypes/
+qa_zrucnosti.txt
