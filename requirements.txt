@@ -3,3 +3,5 @@ groq
 python-dotenv
 beautifulsoup4
 google-genai
+streamlit
+requests

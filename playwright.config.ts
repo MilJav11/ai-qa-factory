@@ -1,7 +1,7 @@
 import { defineConfig } from '@playwright/test';
 import * as dotenv from 'dotenv';
 
-// Toto odomkne .env súbor pre všetky budúce testy
+// This unlocks the .env file for all future tests
 dotenv.config();
 
 export default defineConfig({
@@ -10,7 +10,7 @@ export default defineConfig({
     ['./guardian_reporter.ts']
   ],
   use: {
-    // Vďaka tomuto už ani nemusíš písať --headed do terminálu
+    // Thanks to this, you don't even need to write --headed in the terminal anymore
     headless: false, 
     viewport: { width: 1280, height: 720 },
     trace: 'retain-on-failure',

@@ -1,42 +1,63 @@
-# 🤖 AI Playwright Zero-Code Test Generator
-An enterprise-grade, AI-driven asynchronous E2E test generator for Playwright, powered by the Groq Llama 3.3 model. This tool autonomously analyzes web structures and writes production-ready TypeScript test suites in seconds.
+# 🛡️ Playwright AI Guardian
 
-## 🚀 Installation
-Install all required Python dependencies:
+An AI-powered self-healing test automation framework that automatically detects, analyzes, and fixes broken Playwright locators using DeepSeek LLM.
 
+## 🚀 Key Features
+
+- **Custom Reporter**: Automatically captures detailed error logs and stacks upon test failure.
+- **Automatic DOM Snapshotting**: Saves the exact state of the DOM at the moment of failure for AI analysis.
+- **AI Analysis via Streamlit UI**: Provides a user-friendly dashboard to analyze failures and suggests optimized locators.
+- **One-click Auto-patching**: Automatically updates your test files with the AI-suggested locators.
+
+## 🛠️ Installation
+
+### 1. Prerequisites
+- Node.js (v16 or higher)
+- Python (3.8 or higher)
+
+### 2. Install Dependencies
+Install Playwright and Node dependencies:
+```bash
+npm install
+npx playwright install
+```
+
+Install Python dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-Download and install the necessary Playwright browsers (Chromium):
-
-```bash
-playwright install chromium
+### 3. Environment Setup
+Create a `.env` file in the root directory and add your OpenRouter API key:
+```env
+OPENROUTER_API_KEY=your_key_here
 ```
 
-## 🔐 Setup & Authentication
-Security is our priority. Duplicate the environment template and securely inject your API keys:
+## 📖 Usage
 
+### 1. Run Your Tests
+Execute your Playwright tests using the Guardian Reporter:
 ```bash
-cp .env.example .env
+npx playwright test --reporter=./guardian_reporter.ts
+```
+If a test fails, the reporter will generate `error_log.txt` and the fixture will save `dom_dump.txt`.
+
+### 2. Launch the AI Dashboard
+Start the Streamlit dashboard to analyze and fix the errors:
+```bash
+streamlit run app.py
 ```
 
-Open the `.env` file and insert your respective Groq/Gemini API keys. Never commit this file to version control.
+### 3. Apply Fixes
+1. Open the dashboard in your browser (usually `http://localhost:8501`).
+2. Review the AI analysis and the suggested locator.
+3. Verify the target file path.
+4. Click **"Overwrite code in file"** to automatically patch your test.
 
-## ⚡ Execution
-To trigger the autonomous generator, run the script and provide the target URL (must include `http://` or `https://`) followed by your testing intent in plain English.
+## 🏗️ Project Structure
 
-```bash
-python playwright-generator.py <url> "<scenario_intent>"
-```
-
-**Example:**
-
-```bash
-python playwright-generator.py https://example.com "Verify login page elements and validate successful authentication flow."
-```
-
-## 📊 Data-Driven Testing Architecture
-This framework is built for scale. It features dynamic, scenario-based file naming to ensure zero data loss—existing tests are never overwritten. If a scenario with the exact same name is generated, the engine automatically appends a precise timestamp (e.g., `romotors-ie-contact-form_2026-04-21_1930.spec.ts`).
-
-Furthermore, the architecture is fully optimized for Data-Driven Testing (DDT). It includes a dedicated `test_data` directory equipped with a `contacts.csv` template, empowering you to seamlessly map external datasets and execute massive, parameter-driven QA loops right out of the box.
+- `app.py`: Streamlit dashboard for AI analysis and patching.
+- `guardian_v1.py`: AI logic and integration with DeepSeek via OpenRouter.
+- `guardian_reporter.ts`: Custom Playwright reporter for error capturing.
+- `tests/fixtures.ts`: Playwright fixtures for DOM snapshotting.
+- `error_parser.py`: Utility for parsing Playwright error logs.
