@@ -2,6 +2,12 @@
 
 An AI-powered self-healing test automation framework that automatically detects, analyzes, and fixes broken Playwright locators using DeepSeek LLM.
 
+## 🚀 Quick Start (Automated)
+Instead of running commands separately, use the integrated guardian script:
+```bash
+npm run guardian
+```
+
 ## 🚀 Key Features
 
 - **Custom Reporter**: Automatically captures detailed error logs and stacks upon test failure.
