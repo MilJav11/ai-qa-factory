@@ -5,13 +5,13 @@ import os
 def generate_new_test(api_key: str, url: str, test_description: str) -> str:
     api_url = "https://openrouter.ai/api/v1/chat/completions"
     
-    prompt = f"""Vytvor kompletný e2e Playwright test v TypeScript.
-- Použi `import {{ test, expect }} from './fixtures';` (naše fixtures s DOM snapshottingom).
-- Začni navigáciou na zadanú URL: {url}
-- Pokračuj krok po kroku podľa zadaného popisu: {test_description}
-- Dôrazne uprednostňuj sémantické lokátory (napr. `page.locator('button[name="login"]')`) pred IDčkami alebo CSS triedami.
-- Pridaj finálnu verifikačnú aserciu (`await expect(...)`) na overenie úspechu.
-- Vráť IBA čistý TypeScript kód bez komentárov alebo Markdownu. Žiadne vysvetľovanie."""
+    prompt = f"""Create a complete e2e Playwright test in TypeScript.
+- Use `import {{ test, expect }} from './fixtures';` (our fixtures with DOM snapshotting).
+- Start by navigating to the specified URL: {url}
+- Continue step-by-step according to the provided description: {test_description}
+- Strongly prefer semantic locators (e.g., `page.locator('button[name="login"]')`) over IDs or CSS classes.
+- Add a final verification assertion (`await expect(...)`) to verify success.
+- Return ONLY clean TypeScript code without comments or Markdown. No explanations."""
 
     system_prompt = "You are an expert Playwright automation engineer...\n"
     system_prompt += "CRITICAL RULE: Never format URLs as Markdown links inside the code. Always use plain string literals for URLs. WRONG: `await page.goto('[https://example.com](https://example.com)')`. CORRECT: `await page.goto('https://example.com')`.\n"
@@ -41,7 +41,7 @@ def generate_new_test(api_key: str, url: str, test_description: str) -> str:
         data = response.json()
         ai_text = data['choices'][0]['message']['content'].strip()
         
-        # Bezpečnostné ošetrenie prípadného Markdown formátovania, ak LLM neposlúchne
+        # Safety handling for potential Markdown formatting, in case LLM ignores instructions
         match = re.search(r'```(?:typescript|ts)?\s*(.*?)\s*```', ai_text, re.DOTALL)
         if match:
             return match.group(1).strip()

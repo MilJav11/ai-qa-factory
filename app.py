@@ -138,7 +138,7 @@ elif menu == "✨ Test Generator":
         st.code(st.session_state.generated_code, language='typescript')
         
         st.markdown("---")
-        new_file_name = st.text_input("Zadaj názov nového súboru (napr. `login_test.spec.ts`):")
+        new_file_name = st.text_input("Enter the name of the new file (e.g., `login_test.spec.ts`):")
         
         if st.button("Save and Create File 💾"):
             if new_file_name:
@@ -151,8 +151,8 @@ elif menu == "✨ Test Generator":
                         f.write(st.session_state.generated_code)
                         
                     st.balloons()
-                    st.success(f"🎉 Súbor `{filepath}` bol úspešne vytvorený!")
+                    st.success(f"🎉 File `{filepath}` was successfully created!")
                 except Exception as e:
-                    st.error(f"❌ Chyba pri ukladaní súboru: {e}")
+                    st.error(f"❌ Error saving file: {e}")
             else:
-                st.warning("Prosím, zadaj platný názov súboru.")
+                st.warning("Please enter a valid file name.")
