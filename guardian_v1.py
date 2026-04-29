@@ -37,7 +37,9 @@ Return ONLY a clean JSON object with these keys (no markdown text, no ```json at
   "confidence": "HIGH",
   "reasoning": "Reasoning in English...",
   "locator": "page.locator('...')"
-}}"""
+}}
+
+IMPORTANT: Your response must be a valid JSON. Never use unescaped double quotes inside the reasoning field. Use single quotes for HTML attributes or escape double quotes with a backslash."""
 
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -58,17 +60,29 @@ Return ONLY a clean JSON object with these keys (no markdown text, no ```json at
         # DEBUG: Printing raw response to terminal to see the truth
         print(f"\n[DEBUG RAW AI RESPONSE]:\n{ai_text}\n")
         
-        # AGGRESSIVE MARKDOWN CLEANING
-        if ai_text.startswith("```json"):
-            ai_text = ai_text[7:]
-        if ai_text.startswith("```"):
-            ai_text = ai_text[3:]
-        if ai_text.endswith("```"):
-            ai_text = ai_text[:-3]
-        ai_text = ai_text.strip()
+        # AGGRESSIVE MARKDOWN CLEANING & REGEX EXTRACTION
+        json_match = re.search(r'\{.*\}', ai_text, re.DOTALL)
+        if json_match:
+            ai_text = json_match.group(0)
+        else:
+            ai_text = ai_text.strip()
         
-        # JSON Parsing
-        ai_json = json.loads(ai_text)
+        # JSON Parsing with Defensive logic
+        try:
+            ai_json = json.loads(ai_text)
+        except json.JSONDecodeError:
+            # Basic cleaning logic: try removing problematic newlines and fix basic quotes
+            try:
+                # Try a mild clean up first
+                clean_text = ai_text.replace('\n', '\\n')
+                ai_json = json.loads(clean_text)
+            except Exception:
+                # If it's totally unreadable, fallback instead of crashing
+                ai_json = {
+                    "confidence": "LOW",
+                    "reasoning": "WARNING: AI returned invalid JSON. Using fallback.",
+                    "locator": original_selector
+                }
         
         return {
             "status": "success",

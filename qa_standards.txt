@@ -11,3 +11,7 @@ R10 DIACRITICS: In '.toContainText()' ignore diacritics, or test only the root o
 R11 FOCUS: No smoke-testing menus. Test only the target.
 R12 DIRECT-URL: If testing a subpage, use direct `page.goto(URL)`.
 R13 MOCK-ASSERT: For a mocked request, DO NOT wait for 'Sent' text. Test ends with clicking submit.
+R14 TODOMVC-NO-GLOBAL: NEVER use 'label[for="toggle-all"]' to find or verify items. It is a global control.
+R15 TODOMVC-TEXT: Todo item text is ALWAYS located in a 'label' child of '.todo-list li'. Use `locator('.todo-list li').filter({ hasText: '...' })`.
+R16 TODOMVC-CHECKBOX: To check/uncheck a todo, click the 'input[class="toggle"]' or '.toggle' checkbox inside that specific 'li' wrapper.
+R17 TODOMVC-ASSERT: To verify an item is completed, assert that its parent 'li' element has the class 'completed' (e.g., `.toHaveClass(/completed/)`).
