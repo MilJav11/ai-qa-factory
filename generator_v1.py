@@ -16,8 +16,8 @@ def generate_new_test(api_key: str, url: str, test_description: str) -> str:
     system_prompt = "You are an expert Playwright automation engineer...\n"
     system_prompt += "CRITICAL RULE: Never format URLs as Markdown links inside the code. Always use plain string literals for URLs. WRONG: `await page.goto('[https://example.com](https://example.com)')`. CORRECT: `await page.goto('https://example.com')`.\n"
 
-    if os.path.exists("qa_zrucnosti.txt"):
-        with open("qa_zrucnosti.txt", "r", encoding="utf-8") as f:
+    if os.path.exists("qa_standards.txt"):
+        with open("qa_standards.txt", "r", encoding="utf-8") as f:
             qa_rules = f.read()
         system_prompt += f"\nHere are the strict QA guidelines you MUST follow:\n{qa_rules}"
 

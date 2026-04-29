@@ -1,0 +1,13 @@
+R1 STRICT: Use exclusively 'import { test, expect } from "@playwright/test";'.
+R2 LOCATORS: Prefer ID (#), Name ([name=""]), Placeholder. No convoluted XPath.
+R3 AWAIT: All actions (click, fill) must have 'await'.
+R4 TIMEOUTS: Do not use hardcoded page.waitForTimeout(). Rely on Playwright's auto-wait.
+R5 ISOLATION: Each test is an independent block.
+R6 NO-TOURISM: Do not click on navigation menus (Gallery, About Us) if testing a form.
+R7 MOCKING: ALWAYS mock forms BEFORE clicking: `await page.route('**/*', r => r.fulfill({status:200, body:'ok'}));`
+R8 INTERCEPT: Handle overlapping elements via `click({ force: true })`. Ignore 'skip-to-content' links.
+R9 WP-FORMS: Search by 'name' attribute (e.g. wpforms[fields]). IDs are often dynamic.
+R10 DIACRITICS: In '.toContainText()' ignore diacritics, or test only the root of the word.
+R11 FOCUS: No smoke-testing menus. Test only the target.
+R12 DIRECT-URL: If testing a subpage, use direct `page.goto(URL)`.
+R13 MOCK-ASSERT: For a mocked request, DO NOT wait for 'Sent' text. Test ends with clicking submit.

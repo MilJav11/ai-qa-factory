@@ -12,7 +12,7 @@ python -m streamlit run app.py
 ```
 
 ## 🛠️ Key Features
-- **AI Test Generator**: Creates TypeScript E2E tests following strict rules defined in `qa_zrucnosti.txt`.
+- **AI Test Generator**: Creates TypeScript E2E tests following strict rules defined in `qa_standards.txt`.
 - **Self-Healing Mechanism**: Captures DOM snapshots and error logs upon failure, then uses LLM analysis to suggest and patch the correct locators.
 - **Unified UI**: A Streamlit dashboard for managing test generation and applying one-click fixes.
 - **Custom Reporter**: Integrated logging system that saves `error_log.txt` and `dom_dump.txt` for AI diagnosis.
@@ -25,7 +25,7 @@ python -m streamlit run app.py
 ## 🤖 Command Center (For AI Maintenance)
 When you need to modify the framework, use these maintenance instructions:
 
-- **To update test standards**: 'Modify `generator_v1.py` to strictly enforce the rules defined in `qa_zrucnosti.txt` and ensure URLs are always formatted as plain strings.'
+- **To update test standards**: 'Modify `generator_v1.py` to strictly enforce the rules defined in `qa_standards.txt` and ensure URLs are always formatted as plain strings.'
 - **To update UI logic**: 'Modify `app.py` to handle automated file storage in the `/tests` directory and display clear success feedback.'
 
 ## 🏗️ Project Structure
@@ -33,4 +33,4 @@ When you need to modify the framework, use these maintenance instructions:
 - `generator_v1.py`: Logic for test generation.
 - `guardian_v1.py`: Analysis and patching logic.
 - `tests/`: Directory for generated and healed test files.
-- `qa_zrucnosti.txt`: Core knowledge base defining custom QA rules.
+- `qa_standards.txt`: Core knowledge base defining custom QA rules.
