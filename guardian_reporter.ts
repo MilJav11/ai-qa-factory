@@ -16,7 +16,12 @@ class GuardianReporter implements Reporter {
       // Clean ANSI escape codes (colors)
       fullError = fullError.replace(/\x1b\[[0-9;]*m/g, '');
 
-      const logPath = path.join(process.cwd(), 'error_log.txt');
+      const queueDir = path.join(process.cwd(), 'guardian_queue');
+      if (!fs.existsSync(queueDir)) {
+        fs.mkdirSync(queueDir, { recursive: true });
+      }
+      const safeTitle = test.title.replace(/[^a-zA-Z0-9]/g, '_');
+      const logPath = path.join(queueDir, `error_log_${safeTitle}.txt`);
       fs.writeFileSync(logPath, fullError, 'utf-8');
       console.log(`\n🛡️ Guardian Reporter: FULL error dump saved to ${logPath}`);
     }

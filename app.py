@@ -16,33 +16,63 @@ if menu == "🚑 Guardian (Auto-Healer)":
     if "analysis_result" not in st.session_state:
         st.session_state.analysis_result = None
 
-    # Automatic loading of error log
-    default_error = ""
-    default_file_path = "tests/guardian_test.spec.ts" # Fallback value
+    # Scanning queue directory
+    queue_dir = "guardian_queue"
+    error_files = []
+    if os.path.exists(queue_dir):
+        error_files = [f for f in os.listdir(queue_dir) if f.startswith("error_log_")]
 
-    if os.path.exists("error_log.txt"):
-        with open("error_log.txt", "r", encoding="utf-8") as f:
-            default_error = f.read()
+    if not error_files:
+        st.success("🎉 Queue is empty! No failed tests.")
+        default_file_path = "tests/guardian_test.spec.ts" # Fallback value
+        st.subheader("Input (Manual Fallback)")
+        stderr_input = st.text_area("Playwright error log:", value="", height=150)
+
+        # BUTTON 1: ANALYSIS
+        if st.button("🚀 Find cause and suggest fix"):
+            if stderr_input:
+                with st.spinner("AI is analyzing DOM tree and looking for a fix..."):
+                    try:
+                        st.session_state.analysis_result = run_guardian(stderr_input, dom_dump_path="dom_dump.txt")
+                    except Exception as e:
+                         st.error(f"Critical error: {e}")
+            else:
+                st.warning("Please insert an error log first.")
+    else:
+        st.info("📦 Enterprise Mode: Processing Failed Tests Queue")
+        selected_error_file = st.selectbox("Select a failed test to analyze:", error_files)
         
-        # Search for a string that starts with "tests" and ends with ".spec.ts"
-        match = re.search(r'(tests[\\/][\w.-]+\.spec\.ts)', default_error)
-        if match:
-            default_file_path = match.group(1).replace('\\', '/') # Normalize slashes for Python
+        safe_title = selected_error_file.replace("error_log_", "").replace(".txt", "")
+        error_log_path = os.path.join(queue_dir, selected_error_file)
+        dom_dump_path = os.path.join(queue_dir, f"dom_dump_{safe_title}.txt")
+        
+        st.session_state.current_error_log_path = error_log_path
+        st.session_state.current_dom_dump_path = dom_dump_path
 
-    st.subheader("Input")
-    stderr_input = st.text_area("Playwright error log:", value=default_error, height=150)
+        default_error = ""
+        default_file_path = "tests/guardian_test.spec.ts" # Fallback value
 
+        if os.path.exists(error_log_path):
+            with open(error_log_path, "r", encoding="utf-8") as f:
+                default_error = f.read()
+            
+            # Search for a string that starts with "tests" and ends with ".spec.ts"
+            match = re.search(r'(tests[\\/][\w.-]+\.spec\.ts)', default_error)
+            if match:
+                default_file_path = match.group(1).replace('\\', '/') # Normalize slashes for Python
 
-    # BUTTON 1: ANALYSIS
-    if st.button("🚀 Find cause and suggest fix"):
-        if stderr_input:
-            with st.spinner("AI is analyzing DOM tree and looking for a fix..."):
-                try:
-                    st.session_state.analysis_result = run_guardian(stderr_input)
-                except Exception as e:
-                     st.error(f"Critical error: {e}")
-        else:
-            st.warning("Please insert an error log first.")
+        stderr_input = default_error
+
+        # BUTTON 1: ANALYSIS
+        if st.button("🚀 Find cause and suggest fix"):
+            if stderr_input:
+                with st.spinner("AI is analyzing DOM tree and looking for a fix..."):
+                    try:
+                        st.session_state.analysis_result = run_guardian(stderr_input, dom_dump_path=st.session_state.current_dom_dump_path)
+                    except Exception as e:
+                         st.error(f"Critical error: {e}")
+            else:
+                st.warning("Selected error log is empty.")
 
     st.markdown("---")
 
@@ -106,8 +136,18 @@ if menu == "🚑 Guardian (Auto-Healer)":
                                 with open(target_file, "w", encoding="utf-8") as f:
                                     f.write(new_content)
                                     
+                                # CLEANUP LOGIC
+                                err_path = st.session_state.get('current_error_log_path')
+                                dom_path = st.session_state.get('current_dom_dump_path')
+                                if err_path and os.path.exists(err_path):
+                                    os.remove(err_path)
+                                if dom_path and os.path.exists(dom_path):
+                                    os.remove(dom_path)
+                                
+                                st.session_state.analysis_result = None
                                 st.balloons()
-                                st.success(f"🎉 Great! File {target_file} was successfully overwritten.")
+                                st.success(f"🎉 Great! File {target_file} was successfully overwritten. Queue cleared.")
+                                st.rerun()
                     except Exception as e:
                         st.error(f"❌ An error occurred during writing: {e}")
 

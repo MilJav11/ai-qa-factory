@@ -10,7 +10,12 @@ export const test = baseTest.extend({
     if (testInfo.status !== 'passed' && testInfo.status !== 'skipped') {
       try {
         const dom = await page.content();
-        const domPath = path.join(process.cwd(), 'dom_dump.txt');
+        const queueDir = path.join(process.cwd(), 'guardian_queue');
+        if (!fs.existsSync(queueDir)) {
+          fs.mkdirSync(queueDir, { recursive: true });
+        }
+        const safeTitle = testInfo.title.replace(/[^a-zA-Z0-9]/g, '_');
+        const domPath = path.join(queueDir, `dom_dump_${safeTitle}.txt`);
         fs.writeFileSync(domPath, dom, 'utf-8');
         console.log(`🛡️ Guardian Fixture: DOM dump saved to ${domPath}`);
       } catch (e) {

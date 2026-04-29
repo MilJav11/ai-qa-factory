@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def run_guardian(stderr_log: str) -> dict:
+def run_guardian(stderr_log: str, dom_dump_path: str = "dom_dump.txt") -> dict:
     # 1. Selector extraction from log
     match = re.search(r"locator\(['\"](.*?)['\"]\)", stderr_log)
     if not match:
@@ -15,10 +15,10 @@ def run_guardian(stderr_log: str) -> dict:
     
     # 2. Loading DOM dump
     try:
-        with open("dom_dump.txt", "r", encoding="utf-8") as f:
+        with open(dom_dump_path, "r", encoding="utf-8") as f:
             dom_content = f.read()
     except FileNotFoundError:
-        return {"status": "error", "message": "File dom_dump.txt does not exist. Nothing to read from."}
+        return {"status": "error", "message": f"File {dom_dump_path} does not exist. Nothing to read from."}
 
     # 3. AI Call (DeepSeek)
     api_key = os.environ.get("OPENROUTER_API_KEY")
