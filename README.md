@@ -1,69 +1,36 @@
-# 🛡️ Playwright AI Guardian
+# 🛡️ Playwright AI QA Factory & Guardian
+An integrated AI-powered framework for end-to-end test automation. This project combines two core capabilities:
 
-An AI-powered self-healing test automation framework that automatically detects, analyzes, and fixes broken Playwright locators using DeepSeek LLM.
+- **AI Test Generator**: Generates clean, robust Playwright tests from natural language descriptions, adhering to custom QA standards.
+- **AI Guardian (Auto-Healer)**: Automatically detects, analyzes, and fixes broken locators in Playwright tests using LLM analysis.
 
-## 🚀 Quick Start (Automated)
-Instead of running commands separately, use the integrated guardian script:
+## 🚀 Quick Start
+Launch the integrated dashboard to access both the Generator and the Guardian:
+
 ```bash
-npm run guardian
+python -m streamlit run app.py
 ```
 
-## 🚀 Key Features
+## 🛠️ Key Features
+- **AI Test Generator**: Creates TypeScript E2E tests following strict rules defined in `qa_zrucnosti.txt`.
+- **Self-Healing Mechanism**: Captures DOM snapshots and error logs upon failure, then uses LLM analysis to suggest and patch the correct locators.
+- **Unified UI**: A Streamlit dashboard for managing test generation and applying one-click fixes.
+- **Custom Reporter**: Integrated logging system that saves `error_log.txt` and `dom_dump.txt` for AI diagnosis.
 
-- **Custom Reporter**: Automatically captures detailed error logs and stacks upon test failure.
-- **Automatic DOM Snapshotting**: Saves the exact state of the DOM at the moment of failure for AI analysis.
-- **AI Analysis via Streamlit UI**: Provides a user-friendly dashboard to analyze failures and suggests optimized locators.
-- **One-click Auto-patching**: Automatically updates your test files with the AI-suggested locators.
+## 📖 Installation
+- Install dependencies: `npm install && npx playwright install`
+- Install Python requirements: `pip install -r requirements.txt`
+- Configure API: Create a `.env` file and add your `OPENROUTER_API_KEY`.
 
-## 🛠️ Installation
+## 🤖 Command Center (For AI Maintenance)
+When you need to modify the framework, use these maintenance instructions:
 
-### 1. Prerequisites
-- Node.js (v16 or higher)
-- Python (3.8 or higher)
-
-### 2. Install Dependencies
-Install Playwright and Node dependencies:
-```bash
-npm install
-npx playwright install
-```
-
-Install Python dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Environment Setup
-Create a `.env` file in the root directory and add your OpenRouter API key:
-```env
-OPENROUTER_API_KEY=your_key_here
-```
-
-## 📖 Usage
-
-### 1. Run Your Tests
-Execute your Playwright tests using the Guardian Reporter:
-```bash
-npx playwright test --reporter=./guardian_reporter.ts
-```
-If a test fails, the reporter will generate `error_log.txt` and the fixture will save `dom_dump.txt`.
-
-### 2. Launch the AI Dashboard
-Start the Streamlit dashboard to analyze and fix the errors:
-```bash
-streamlit run app.py
-```
-
-### 3. Apply Fixes
-1. Open the dashboard in your browser (usually `http://localhost:8501`).
-2. Review the AI analysis and the suggested locator.
-3. Verify the target file path.
-4. Click **"Overwrite code in file"** to automatically patch your test.
+- **To update test standards**: 'Modify `generator_v1.py` to strictly enforce the rules defined in `qa_zrucnosti.txt` and ensure URLs are always formatted as plain strings.'
+- **To update UI logic**: 'Modify `app.py` to handle automated file storage in the `/tests` directory and display clear success feedback.'
 
 ## 🏗️ Project Structure
-
-- `app.py`: Streamlit dashboard for AI analysis and patching.
-- `guardian_v1.py`: AI logic and integration with DeepSeek via OpenRouter.
-- `guardian_reporter.ts`: Custom Playwright reporter for error capturing.
-- `tests/fixtures.ts`: Playwright fixtures for DOM snapshotting.
-- `error_parser.py`: Utility for parsing Playwright error logs.
+- `app.py`: Central Streamlit dashboard.
+- `generator_v1.py`: Logic for test generation.
+- `guardian_v1.py`: Analysis and patching logic.
+- `tests/`: Directory for generated and healed test files.
+- `qa_zrucnosti.txt`: Core knowledge base defining custom QA rules.
