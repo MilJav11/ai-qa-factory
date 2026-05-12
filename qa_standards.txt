@@ -15,3 +15,5 @@ R14 TODOMVC-NO-GLOBAL: NEVER use 'label[for="toggle-all"]' to find or verify ite
 R15 TODOMVC-TEXT: Todo item text is ALWAYS located in a 'label' child of '.todo-list li'. Use `locator('.todo-list li').filter({ hasText: '...' })`.
 R16 TODOMVC-CHECKBOX: To check/uncheck a todo, click the 'input[class="toggle"]' or '.toggle' checkbox inside that specific 'li' wrapper.
 R17 TODOMVC-ASSERT: To verify an item is completed, assert that its parent 'li' element has the class 'completed' (e.g., `.toHaveClass(/completed/)`).
+R18 SAUCEDEMO-LOCATORS: On saucedemo.com, ALWAYS prioritize elements with the 'data-test' attribute (e.g., '[data-test="checkout"]'). Never use complex XPaths or CSS paths if a 'data-test' or 'id' is available.
+R19 HEALING-FALLBACK: If the failed locator implies a checkout action (e.g., contains 'checkout'), search the DOM specifically for buttons containing the text 'Checkout' or 'data-test="checkout"'.
