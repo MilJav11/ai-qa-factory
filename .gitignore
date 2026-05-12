@@ -1,29 +1,10 @@
-# Secrets & Environment Variables (CRITICAL!)
 .env
-
-# AI Guardian Temporary Files (Do not track dynamic logs)
-dom_dump.txt
-error_log.txt
-
-# Python
 venv/
 __pycache__/
-*.py[cod]
-.streamlit/
-
-# Node.js
 node_modules/
-
-# Playwright
+.streamlit/
+guardian_queue/
 test-results/
 playwright-report/
-blob-report/
-playwright/.cache/
-
-# Generated tests (generated dynamically on the server)
-*-generated.spec.ts
-*-data-driven.spec.ts
-
-# Personal notes and old prototypes (Local only)
-_archive_old_prototypes/
-qa_zrucnosti.txt
+.vscode/
+*.spec.ts.local

@@ -1,0 +1,12 @@
+Error: expect(locator).toContainText(expected) failed
+
+Locator: locator('div.todo-list li')
+Expected substring: "Pass the QA interview"
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toContainText" with timeout 5000ms
+  - waiting for locator('div.todo-list li')
+
+    at C:\Users\a\Desktop\Playwright Zero-Code Test Generator\tests\interview_demo.spec.ts:10:50
