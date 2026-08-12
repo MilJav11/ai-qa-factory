@@ -11,3 +11,5 @@ test-results/
 playwright-report/
 .vscode/
 *.spec.ts.local
+/dom_dump.txt
+/error_log.txt
