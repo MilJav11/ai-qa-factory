@@ -2,8 +2,45 @@ import streamlit as st
 import re
 import traceback
 import os
+from pathlib import Path
 from guardian_v1 import run_guardian
 import generator_v1
+
+
+def _resolve_guardian_test_file(target_file: str) -> Path:
+    """Return a safe, existing Playwright spec file inside project tests/."""
+    candidate = Path(target_file)
+    if ".." in candidate.parts:
+        raise ValueError("Cesta nesmie obsahovať '..'.")
+
+    project_root = Path(__file__).resolve().parent
+    tests_dir = project_root / "tests"
+
+    try:
+        resolved_tests_dir = tests_dir.resolve(strict=True)
+        resolved_target = (
+            candidate if candidate.is_absolute() else project_root / candidate
+        ).resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise ValueError("Cieľový súbor alebo adresár tests/ neexistuje.") from exc
+
+    if tests_dir.is_symlink() or not resolved_tests_dir.is_dir():
+        raise ValueError("Projektový adresár tests/ nie je platný bežný adresár.")
+
+    try:
+        resolved_tests_dir.relative_to(project_root)
+        resolved_target.relative_to(resolved_tests_dir)
+    except ValueError as exc:
+        raise ValueError(
+            "Cieľ musí byť v adresári tests/ alebo jeho podpriečinku."
+        ) from exc
+
+    if not resolved_target.is_file():
+        raise ValueError("Cieľ musí byť existujúci bežný súbor.")
+    if not resolved_target.name.endswith(".spec.ts"):
+        raise ValueError("Cieľový súbor musí mať príponu .spec.ts.")
+
+    return resolved_target
 
 st.set_page_config(page_title="Playwright AI Guardian", page_icon="🛡️", layout="wide")
 
@@ -112,12 +149,14 @@ if menu == "🚑 Guardian (Auto-Healer)":
             # BUTTON 2: WRITE TO FILE
             if st.button("💾 Overwrite code in file"):
                 st.write(f"🔍 **DEBUG:** Searching in file: `{original_selector}`")
-                
-                if not os.path.exists(target_file):
-                     st.error(f"❌ File '{target_file}' does not exist!")
+
+                try:
+                    validated_target_file = _resolve_guardian_test_file(target_file)
+                except ValueError as e:
+                    st.error(f"❌ Neplatná cesta k testu: {e}")
                 else:
                     try:
-                        with open(target_file, "r", encoding="utf-8") as f:
+                        with open(validated_target_file, "r", encoding="utf-8") as f:
                             content = f.read()
                         
                         escaped_selector = re.escape(original_selector)
@@ -133,7 +172,7 @@ if menu == "🚑 Guardian (Auto-Healer)":
                                 st.error("🛑 Safety trigger: AI did not generate any new locator. File write blocked!")
                             else:
                                 new_content = re.sub(pattern, new_locator, content)
-                                with open(target_file, "w", encoding="utf-8") as f:
+                                with open(validated_target_file, "w", encoding="utf-8") as f:
                                     f.write(new_content)
                                     
                                 # CLEANUP LOGIC
