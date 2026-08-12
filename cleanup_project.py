@@ -14,7 +14,9 @@ def archive_old_files():
         "guardian_v1.py",
         "error_parser.py",
         "cleanup_project.py",
-        "playwright.config.ts",
+    "playwright.config.ts",
+    "generator_v1.py",
+    "guardian_reporter.ts",
         "guardian-hook.ts"
     ]
     
