@@ -226,6 +226,85 @@ class GuardianApplySafetyTests(unittest.TestCase):
         self.assertIsNone(message)
         self.assertIn(new_locator, replacement)
 
+    def test_resolves_only_existing_spec_files_inside_project_tests(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            project_root = Path(temporary_directory)
+            tests_directory = project_root / "tests"
+            nested_tests_directory = tests_directory / "nested"
+            tests_directory.mkdir()
+            nested_tests_directory.mkdir()
+
+            allowed_file = tests_directory / "example.spec.ts"
+            nested_allowed_file = nested_tests_directory / "nested.spec.ts"
+            directory_instead_of_file = tests_directory / "directory.spec.ts"
+            wrong_extension_file = tests_directory / "example.ts"
+            outside_file = project_root / "outside.spec.ts"
+            for file_path in (allowed_file, nested_allowed_file, wrong_extension_file, outside_file):
+                file_path.touch()
+            directory_instead_of_file.mkdir()
+
+            with patch.object(app, "__file__", str(project_root / "app.py")):
+                self.assertEqual(
+                    allowed_file.resolve(),
+                    app._resolve_guardian_test_file("tests/example.spec.ts"),
+                )
+                self.assertEqual(
+                    allowed_file.resolve(),
+                    app._resolve_guardian_test_file(str(allowed_file.resolve())),
+                )
+                self.assertEqual(
+                    nested_allowed_file.resolve(),
+                    app._resolve_guardian_test_file("tests/nested/nested.spec.ts"),
+                )
+
+                rejected_paths = (
+                    "outside.spec.ts",
+                    str(outside_file.resolve()),
+                    "tests/../tests/example.spec.ts",
+                    "tests/missing.spec.ts",
+                    "tests/directory.spec.ts",
+                    "tests/example.ts",
+                )
+                for rejected_path in rejected_paths:
+                    with self.subTest(rejected_path=rejected_path):
+                        with self.assertRaises(ValueError):
+                            app._resolve_guardian_test_file(rejected_path)
+
+    def test_rejects_symlinked_file_outside_tests_when_supported(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            project_root = Path(temporary_directory)
+            tests_directory = project_root / "tests"
+            tests_directory.mkdir()
+            outside_file = project_root / "outside.spec.ts"
+            outside_file.touch()
+            symlinked_file = tests_directory / "linked.spec.ts"
+
+            try:
+                symlinked_file.symlink_to(outside_file)
+            except (NotImplementedError, OSError) as error:
+                self.skipTest(f"Symlinks are unavailable in this environment: {error}")
+
+            with patch.object(app, "__file__", str(project_root / "app.py")):
+                with self.assertRaises(ValueError):
+                    app._resolve_guardian_test_file("tests/linked.spec.ts")
+
+    def test_rejects_symlinked_tests_directory_when_supported(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            project_root = Path(temporary_directory)
+            real_tests_directory = project_root / "real_tests"
+            real_tests_directory.mkdir()
+            (real_tests_directory / "example.spec.ts").touch()
+            symlinked_tests_directory = project_root / "tests"
+
+            try:
+                symlinked_tests_directory.symlink_to(real_tests_directory, target_is_directory=True)
+            except (NotImplementedError, OSError) as error:
+                self.skipTest(f"Symlinks are unavailable in this environment: {error}")
+
+            with patch.object(app, "__file__", str(project_root / "app.py")):
+                with self.assertRaises(ValueError):
+                    app._resolve_guardian_test_file("tests/example.spec.ts")
+
     def test_preserves_crlf_when_reading_replacing_and_writing(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
             target_file = Path(temporary_directory) / "sample.spec.ts"
