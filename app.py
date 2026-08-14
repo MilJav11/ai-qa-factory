@@ -2,8 +2,142 @@ import streamlit as st
 import re
 import traceback
 import os
+import tempfile
+from pathlib import Path
 from guardian_v1 import run_guardian
 import generator_v1
+
+
+_TS_STRING_LITERAL = r'''(?:"(?:\\.|[^"\\\r\n])*"|'(?:\\.|[^'\\\r\n])*')'''
+_FILTER_CHAIN = rf'''\.filter\(\s*\{{\s*hasText\s*:\s*{_TS_STRING_LITERAL}\s*,?\s*\}}\s*\)'''
+_LOCATOR_CHAIN = rf'''(?:{_FILTER_CHAIN}|\.first\(\)|\.last\(\)|\.nth\(\s*(?:0|[1-9][0-9]*)\s*\))*'''
+_SAFE_GUARDIAN_LOCATOR_RE = re.compile(
+    rf'''page\.locator\(\s*{_TS_STRING_LITERAL}\s*\){_LOCATOR_CHAIN}''',
+    re.VERBOSE,
+)
+_UNSUPPORTED_LOCATOR_CONTINUATION_RE = re.compile(
+    r'''\s*\.\s*(?:locator|getBy[A-Za-z_$][A-Za-z0-9_$]*|filter|and|or|
+        first|last|nth)\s*\(''',
+    re.VERBOSE,
+)
+
+
+def _is_safe_guardian_locator(value: object) -> bool:
+    """Allow one restricted, single-line Playwright locator expression."""
+    if not isinstance(value, str):
+        return False
+    if not value or any(token in value for token in ("\r", "\n", ";", "`", "//", "/*", "*/")):
+        return False
+    return _SAFE_GUARDIAN_LOCATOR_RE.fullmatch(value) is not None
+
+
+def _existing_locator_expression_pattern(original_selector: str) -> re.Pattern:
+    escaped_selector = re.escape(original_selector)
+    return re.compile(
+        rf'''page\.locator\(\s*(?:'{escaped_selector}'|"{escaped_selector}")\s*\){_LOCATOR_CHAIN}''',
+        re.VERBOSE,
+    )
+
+
+def _prepare_guardian_locator_replacement(
+    content: str,
+    original_selector: str,
+    new_locator: object,
+) -> tuple[str | None, str | None]:
+    """Return one safe locator-expression replacement without modifying a file."""
+    if not _is_safe_guardian_locator(new_locator):
+        return None, "The AI suggestion is not a supported Playwright locator. No file was changed."
+
+    pattern = _existing_locator_expression_pattern(original_selector)
+    matches = list(pattern.finditer(content))
+    match_count = len(matches)
+    if match_count == 0:
+        return None, "Could not find the original locator. No file was changed."
+    if match_count > 1:
+        return None, "The original locator occurs more than once. No file was changed."
+    if _UNSUPPORTED_LOCATOR_CONTINUATION_RE.match(content, matches[0].end()):
+        return None, "The existing locator continues with an unsupported locator chain. No file was changed."
+
+    new_content, replacement_count = pattern.subn(lambda _: new_locator, content, count=1)
+    if replacement_count != 1:
+        return None, "The locator replacement could not be applied. No file was changed."
+    return new_content, None
+
+
+def _read_text_preserving_newlines(path: Path) -> str:
+    with open(path, "r", encoding="utf-8", newline="") as file:
+        return file.read()
+
+
+def _write_text_atomically(path: Path, content: str) -> None:
+    """Replace a file only after its full contents were written beside it."""
+    file_descriptor = None
+    temporary_name = None
+    try:
+        file_descriptor, temporary_name = tempfile.mkstemp(
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            text=True,
+        )
+        temporary_file = os.fdopen(
+            file_descriptor,
+            "w",
+            encoding="utf-8",
+            newline="",
+        )
+        file_descriptor = None
+        with temporary_file as file:
+            file.write(content)
+        os.replace(temporary_name, path)
+    except Exception:
+        if file_descriptor is not None:
+            try:
+                os.close(file_descriptor)
+            except OSError:
+                pass
+        if temporary_name is not None:
+            try:
+                os.unlink(temporary_name)
+            except FileNotFoundError:
+                pass
+        raise
+
+
+def _resolve_guardian_test_file(target_file: str) -> Path:
+    """Return a safe, existing Playwright spec file inside project tests/."""
+    candidate = Path(target_file)
+    if ".." in candidate.parts:
+        raise ValueError("Cesta nesmie obsahovať '..'.")
+
+    project_root = Path(__file__).resolve().parent
+    tests_dir = project_root / "tests"
+
+    try:
+        resolved_tests_dir = tests_dir.resolve(strict=True)
+        resolved_target = (
+            candidate if candidate.is_absolute() else project_root / candidate
+        ).resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise ValueError("Cieľový súbor alebo adresár tests/ neexistuje.") from exc
+
+    if tests_dir.is_symlink() or not resolved_tests_dir.is_dir():
+        raise ValueError("Projektový adresár tests/ nie je platný bežný adresár.")
+
+    try:
+        resolved_tests_dir.relative_to(project_root)
+        resolved_target.relative_to(resolved_tests_dir)
+    except ValueError as exc:
+        raise ValueError(
+            "Cieľ musí byť v adresári tests/ alebo jeho podpriečinku."
+        ) from exc
+
+    if not resolved_target.is_file():
+        raise ValueError("Cieľ musí byť existujúci bežný súbor.")
+    if not resolved_target.name.endswith(".spec.ts"):
+        raise ValueError("Cieľový súbor musí mať príponu .spec.ts.")
+
+    return resolved_target
 
 st.set_page_config(page_title="Playwright AI Guardian", page_icon="🛡️", layout="wide")
 
@@ -112,42 +246,37 @@ if menu == "🚑 Guardian (Auto-Healer)":
             # BUTTON 2: WRITE TO FILE
             if st.button("💾 Overwrite code in file"):
                 st.write(f"🔍 **DEBUG:** Searching in file: `{original_selector}`")
-                
-                if not os.path.exists(target_file):
-                     st.error(f"❌ File '{target_file}' does not exist!")
+
+                try:
+                    validated_target_file = _resolve_guardian_test_file(target_file)
+                except ValueError as e:
+                    st.error(f"❌ Neplatná cesta k testu: {e}")
                 else:
                     try:
-                        with open(target_file, "r", encoding="utf-8") as f:
-                            content = f.read()
-                        
-                        escaped_selector = re.escape(original_selector)
-                        pattern = rf'page\.locator\([\'"]{escaped_selector}[\'"]\)'
-                        
-                        matches = re.findall(pattern, content)
-                        st.write(f"🔍 **DEBUG:** Found occurrences in file: {len(matches)}")
-                        
-                        if len(matches) == 0:
-                            st.error(f"❌ Could not find `{original_selector}` in file.")
+                        content = _read_text_preserving_newlines(validated_target_file)
+                        new_content, replacement_error = _prepare_guardian_locator_replacement(
+                            content,
+                            original_selector,
+                            new_locator,
+                        )
+                        if replacement_error:
+                            st.error(replacement_error)
                         else:
-                            if not new_locator.strip():
-                                st.error("🛑 Safety trigger: AI did not generate any new locator. File write blocked!")
-                            else:
-                                new_content = re.sub(pattern, new_locator, content)
-                                with open(target_file, "w", encoding="utf-8") as f:
-                                    f.write(new_content)
-                                    
-                                # CLEANUP LOGIC
-                                err_path = st.session_state.get('current_error_log_path')
-                                dom_path = st.session_state.get('current_dom_dump_path')
-                                if err_path and os.path.exists(err_path):
-                                    os.remove(err_path)
-                                if dom_path and os.path.exists(dom_path):
-                                    os.remove(dom_path)
-                                
-                                st.session_state.analysis_result = None
-                                st.balloons()
-                                st.success(f"🎉 Great! File {target_file} was successfully overwritten. Queue cleared.")
-                                st.rerun()
+                            _write_text_atomically(validated_target_file, new_content)
+
+                            # CLEANUP LOGIC
+                            err_path = st.session_state.get('current_error_log_path')
+                            dom_path = st.session_state.get('current_dom_dump_path')
+                            if err_path and os.path.exists(err_path):
+                                os.remove(err_path)
+                            if dom_path and os.path.exists(dom_path):
+                                os.remove(dom_path)
+
+                            st.session_state.analysis_result = None
+                            st.balloons()
+                            st.success(f"🎉 Great! File {target_file} was successfully overwritten. Queue cleared.")
+                            st.rerun()
+
                     except Exception as e:
                         st.error(f"❌ An error occurred during writing: {e}")
 
