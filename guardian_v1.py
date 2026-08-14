@@ -23,6 +23,12 @@ _SENSITIVE_ASSIGNMENT_RE = re.compile(
     r"set-cookie|authorization|session(?:id)?|csrf)\b\s*[:=]\s*"
     r"(?P<value>\"[^\"]*\"|'[^']*'|[^\s<]+)"
 )
+_QUOTED_SENSITIVE_ASSIGNMENT_RE = re.compile(
+    r'''(?i)(?P<key_quote>["'])(?P<name>password|passwd|pwd|token|access[_-]?token|
+    id[_-]?token|refresh[_-]?token|api[_-]?key|secret|cookie|set-cookie|authorization|
+    session(?:id)?|csrf)(?P=key_quote)\s*:\s*(?P<value>"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[^\s,}<]+)''',
+    re.VERBOSE,
+)
 _AUTH_SCHEME_RE = re.compile(
     r"(?i)\b(?P<scheme>bearer|basic)\s+[A-Za-z0-9._~+/=-]+"
 )
@@ -105,7 +111,26 @@ def _redact_sensitive_text(value: str) -> str:
     value = _SENSITIVE_ASSIGNMENT_RE.sub(
         lambda match: f"{match.group('name')}=[REDACTED]", value
     )
+    value = _QUOTED_SENSITIVE_ASSIGNMENT_RE.sub(
+        lambda match: (
+            f"{match.group('key_quote')}{match.group('name')}"
+            f"{match.group('key_quote')}:\"[REDACTED]\""
+        ),
+        value,
+    )
     return _SENSITIVE_QUERY_PARAM_RE.sub(r"\1[REDACTED]", value)
+
+
+def _is_valid_ai_suggestion(value) -> bool:
+    """Return whether an AI completion has the schema required by app.py."""
+    return (
+        isinstance(value, dict)
+        and isinstance(value.get("confidence"), str)
+        and bool(value["confidence"].strip())
+        and isinstance(value.get("reasoning"), str)
+        and isinstance(value.get("locator"), str)
+        and bool(value["locator"].strip())
+    )
 
 
 class _DomPromptSanitizer(HTMLParser):
@@ -306,6 +331,9 @@ IMPORTANT: Your response must be a valid JSON. Never use unescaped double quotes
                 "reasoning": "WARNING: AI returned invalid JSON. Using fallback.",
                 "locator": f"page.locator('{original_selector}')"
             }
+
+    if not _is_valid_ai_suggestion(ai_json):
+        return {"status": "error", "message": _ai_error_message(invalid_response=True)}
 
     return {
         "status": "success",

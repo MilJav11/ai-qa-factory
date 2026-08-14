@@ -77,6 +77,39 @@ class DomSanitizationTests(unittest.TestCase):
         self.assertNotIn("<style", sanitized)
         self.assertIn("[REDACTED]", sanitized)
 
+    def test_redacts_quoted_json_style_sensitive_keys(self):
+        html = """
+        <div data-context='{"token":"synthetic-json-token","api_key": "synthetic-json-key"}'></div>
+        <div>{'authorization': 'Bearer synthetic-json-authorization'}</div>
+        """
+
+        sanitized = guardian._sanitize_dom_for_prompt(html)
+
+        self.assertNotIn("synthetic-json-token", sanitized)
+        self.assertNotIn("synthetic-json-key", sanitized)
+        self.assertNotIn("synthetic-json-authorization", sanitized)
+        self.assertIn("[REDACTED]", sanitized)
+
+    def test_redacts_escaped_quoted_json_style_sensitive_values(self):
+        html = r'''
+        <div>{"token":"synthetic-quote-abc\"def"}</div>
+        <div>{"token":"synthetic-backslash-abc\\def"}</div>
+        <div>{'token':'synthetic-single-abc\'def'}</div>
+        <div data-context='{"token":"synthetic-attribute-abc\"def"}'></div>
+        '''
+
+        sanitized = guardian._sanitize_dom_for_prompt(html)
+
+        for fragment in (
+            "synthetic-quote-abc",
+            "synthetic-backslash-abc",
+            "synthetic-single-abc",
+            "synthetic-attribute-abc",
+            "def",
+        ):
+            self.assertNotIn(fragment, sanitized)
+        self.assertIn("[REDACTED]", sanitized)
+
     def test_enforces_dom_size_limit_and_marks_truncation(self):
         html = "<div data-testid=\"large-dom\">" + ("x" * (guardian.MAX_DOM_PROMPT_CHARS + 100)) + "</div>"
 

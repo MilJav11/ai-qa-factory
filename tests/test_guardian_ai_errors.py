@@ -1,5 +1,6 @@
 import io
 import importlib.util
+import json
 import os
 import sys
 import types
@@ -182,6 +183,38 @@ class GuardianAiErrorTests(unittest.TestCase):
         )
         self.assertEqual(1, post.call_count)
         sleep.assert_not_called()
+
+    def test_completion_json_schema_rejects_invalid_values_without_exposure(self):
+        invalid_suggestions = (
+            [],
+            True,
+            None,
+            "SYNTHETIC_SCHEMA_SECRET",
+            {},
+            {"confidence": "HIGH", "reasoning": "Synthetic"},
+            {"confidence": None, "reasoning": "Synthetic", "locator": "page.locator('.new')"},
+            {"confidence": "HIGH", "reasoning": None, "locator": "page.locator('.new')"},
+            {"confidence": "HIGH", "reasoning": "Synthetic", "locator": None},
+            {"confidence": "", "reasoning": "Synthetic", "locator": "page.locator('.new')"},
+            {"confidence": "HIGH", "reasoning": "Synthetic", "locator": ""},
+        )
+
+        for suggestion in invalid_suggestions:
+            with self.subTest(suggestion=type(suggestion).__name__):
+                payload = {"choices": [{"message": {"content": json.dumps(suggestion)}}]}
+                result, post, sleep, stdout, stderr = self.run_guardian(
+                    FakeResponse(payload=payload)
+                )
+
+                self.assertEqual(
+                    {"status": "error", "message": "The AI provider returned an invalid response."},
+                    result,
+                )
+                self.assertEqual(1, post.call_count)
+                sleep.assert_not_called()
+                self.assertEqual("", stdout)
+                self.assertEqual("", stderr)
+                self.assertNotIn("SYNTHETIC_SCHEMA_SECRET", f"{result}{stdout}{stderr}")
 
     def test_raw_response_text_and_synthetic_secrets_are_not_exposed(self):
         secret = "SYNTHETIC_RESPONSE_BODY_SECRET"
