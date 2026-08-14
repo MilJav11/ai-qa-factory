@@ -1,6 +1,27 @@
-# AI QA Factory
+<p align="center">
+  <img src="docs/assets/ai-qa-factory-banner.svg" alt="AI QA Factory — Generate. Detect. Repair. Approve." width="1200">
+</p>
 
-AI QA Factory is a local, human-in-the-loop tool for generating and maintaining Playwright end-to-end tests. It combines a Python and Streamlit interface with Playwright and TypeScript execution, using OpenRouter with DeepSeek to suggest tests and supported locator repairs.
+<p align="center">A local, human-in-the-loop workspace for generating, diagnosing, and safely repairing Playwright end-to-end tests with AI assistance.</p>
+
+<p align="center">
+  <a href="https://github.com/MilJav11/ai-qa-factory/releases/latest"><img src="https://img.shields.io/github/v/release/MilJav11/ai-qa-factory?display_name=tag&amp;sort=semver&amp;style=flat-square&amp;color=2563eb" alt="Latest GitHub release"></a>
+  <img src="https://img.shields.io/badge/Python-runtime-3776AB?style=flat-square" alt="Python">
+  <img src="https://img.shields.io/badge/Playwright-testing-2EAD33?style=flat-square" alt="Playwright">
+  <img src="https://img.shields.io/badge/Streamlit-UI-FF4B4B?style=flat-square" alt="Streamlit">
+  <img src="https://img.shields.io/badge/TypeScript-tests-3178C6?style=flat-square" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Human--in--the--loop-required-7C3AED?style=flat-square" alt="Human-in-the-loop required">
+</p>
+
+<p align="center">
+  <a href="#what-it-does">What it does</a> ·
+  <a href="#workflow">Workflow</a> ·
+  <a href="#setup">Setup</a> ·
+  <a href="#commands">Commands</a> ·
+  <a href="#security-and-privacy">Security</a> ·
+  <a href="#limitations">Limitations</a> ·
+  <a href="https://github.com/MilJav11/ai-qa-factory/releases/tag/v1.0.1">Release notes</a>
+</p>
 
 ## What it does
 
