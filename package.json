@@ -1,7 +1,7 @@
 {
   "name": "playwright-zero-code-test-generator",
-  "version": "1.0.0",
-  "description": "Generátor asynchrónnych testov pre Playwright využívajúci umelú inteligenciu (Groq Llama 3.3).",
+  "version": "1.0.1",
+  "description": "Human-in-the-loop Playwright E2E test generation and self-healing via OpenRouter DeepSeek.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
