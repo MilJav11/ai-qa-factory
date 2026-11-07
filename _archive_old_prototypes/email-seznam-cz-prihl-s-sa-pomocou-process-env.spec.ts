@@ -52,7 +52,7 @@ test.describe('Email Page Tests', () => {
 
   test('should login and send email', async () => {
     await emailPage.login(process.env.SEZNAM_EMAIL, process.env.SEZNAM_PASSWORD);
-    await emailPage.composeEmail('dentalux11@gmail.com', 'Ostrý AI Test', 'Toto je reálny test odoslaný umelou inteligenciou');
+    await emailPage.composeEmail('user@example.com', 'Ostrý AI Test', 'Toto je reálny test odoslaný umelou inteligenciou');
     await emailPage.attachFile('test_data/priloha.txt');
     await emailPage.sendEmail();
     await expect(emailPage.successMessage).toBeVisible();
