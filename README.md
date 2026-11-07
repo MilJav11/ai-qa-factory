@@ -1,5 +1,3 @@
-[![CI](https://github.com/MilJav11/ai-qa-factory/actions/workflows/ci.yml/badge.svg)](https://github.com/MilJav11/ai-qa-factory/actions/workflows/ci.yml)
-
 <p align="center">
   <img src="docs/assets/ai-qa-factory-banner.svg" alt="AI QA Factory — Generate. Detect. Repair. Approve." width="1200">
 </p>
@@ -11,6 +9,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/MilJav11/ai-qa-factory/actions/workflows/ci.yml"><img src="https://github.com/MilJav11/ai-qa-factory/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/MilJav11/ai-qa-factory/releases/latest"><img src="https://img.shields.io/github/v/release/MilJav11/ai-qa-factory?display_name=tag&amp;sort=semver&amp;style=flat-square&amp;color=2563eb" alt="Latest GitHub release"></a>
   <img src="https://img.shields.io/badge/Python-runtime-3776AB?style=flat-square" alt="Python">
   <img src="https://img.shields.io/badge/Playwright-testing-2EAD33?style=flat-square" alt="Playwright">
@@ -162,8 +161,8 @@ python -m unittest discover -s tests -p "test_*.py" -v
 
 ## Testing and status
 
-Version `1.0.1` documents the current human-approved self-healing workflow and package metadata. The repository includes Playwright specs and offline Python unit tests for Guardian safety, DOM sanitization, and AI error handling. This release-preparation change does not run the application, browsers, network requests, installations, or test suite.
+Version `1.0.1` documents the current human-approved self-healing workflow and package metadata. The repository includes Playwright specs and offline Python unit tests for Guardian safety, DOM sanitization, and AI error handling. GitHub Actions CI runs the offline Python unit tests on Python 3.10–3.12 and Playwright test discovery (`npx playwright test --list`) on every push and PR; the live SauceDemo E2E spec is not run in CI.
 
 ## Roadmap
 
-Possible future work includes CI integration and broader support for Playwright locator forms. These items are not represented as current capabilities.
+Possible future work includes broader support for Playwright locator forms. These items are not represented as current capabilities.
