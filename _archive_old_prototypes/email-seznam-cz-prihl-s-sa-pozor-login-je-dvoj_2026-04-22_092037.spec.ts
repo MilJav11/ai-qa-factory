@@ -41,7 +41,7 @@ export class PrihlasovaniePage extends BasePage {
     await this.page.waitForTimeout(500); // Ľudská pauza
 
     // 3. Komu
-    await this.page.getByRole('textbox', { name: 'Komu…' }).fill('dentalux11@gmail.com');
+    await this.page.getByRole('textbox', { name: 'Komu…' }).fill('user@example.com');
 
     await this.page.waitForTimeout(500);
 

@@ -1,8 +1,14 @@
+[![CI](https://github.com/MilJav11/ai-qa-factory/actions/workflows/ci.yml/badge.svg)](https://github.com/MilJav11/ai-qa-factory/actions/workflows/ci.yml)
+
 <p align="center">
   <img src="docs/assets/ai-qa-factory-banner.svg" alt="AI QA Factory — Generate. Detect. Repair. Approve." width="1200">
 </p>
 
 <p align="center">A local, human-in-the-loop workspace for generating, diagnosing, and safely repairing Playwright end-to-end tests with AI assistance.</p>
+
+<p align="center">
+  <img src="docs/assets/ui-screenshot.png" alt="AI QA Factory Streamlit UI — Playwright AI Guardian" width="900">
+</p>
 
 <p align="center">
   <a href="https://github.com/MilJav11/ai-qa-factory/releases/latest"><img src="https://img.shields.io/github/v/release/MilJav11/ai-qa-factory?display_name=tag&amp;sort=semver&amp;style=flat-square&amp;color=2563eb" alt="Latest GitHub release"></a>
