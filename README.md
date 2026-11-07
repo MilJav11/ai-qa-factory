@@ -7,6 +7,10 @@
 <p align="center">A local, human-in-the-loop workspace for generating, diagnosing, and safely repairing Playwright end-to-end tests with AI assistance.</p>
 
 <p align="center">
+  <img src="docs/assets/ui-screenshot.png" alt="AI QA Factory Streamlit UI — Playwright AI Guardian" width="900">
+</p>
+
+<p align="center">
   <a href="https://github.com/MilJav11/ai-qa-factory/releases/latest"><img src="https://img.shields.io/github/v/release/MilJav11/ai-qa-factory?display_name=tag&amp;sort=semver&amp;style=flat-square&amp;color=2563eb" alt="Latest GitHub release"></a>
   <img src="https://img.shields.io/badge/Python-runtime-3776AB?style=flat-square" alt="Python">
   <img src="https://img.shields.io/badge/Playwright-testing-2EAD33?style=flat-square" alt="Playwright">
