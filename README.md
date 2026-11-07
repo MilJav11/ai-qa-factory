@@ -1,3 +1,5 @@
+[![CI](https://github.com/MilJav11/ai-qa-factory/actions/workflows/ci.yml/badge.svg)](https://github.com/MilJav11/ai-qa-factory/actions/workflows/ci.yml)
+
 <p align="center">
   <img src="docs/assets/ai-qa-factory-banner.svg" alt="AI QA Factory — Generate. Detect. Repair. Approve." width="1200">
 </p>
